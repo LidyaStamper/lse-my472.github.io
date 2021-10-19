@@ -33,7 +33,7 @@ Now we actually face a somewhat advanced problem. Since recently there can be ne
 ```{r}
 driver$switchToFrame(0)
 
-agree_button <- driver$findElement(using = "xpath", value = "tba")
+agree_button <- driver$findElement(using = "xpath", value = "/html/body/div[2]/div[2]/div[3]/span/div/div/div[3]/button[2]/div")
 agree_button$clickElement()
 
 driver$switchToFrame(1)
@@ -42,7 +42,7 @@ driver$switchToFrame(1)
 Next, we will search for the LSE:
 
 ```{r}
-search_field <- driver$findElement(using = "xpath", value = "tba")
+search_field <- driver$findElement(using = "xpath", value = "/html/body/div[2]/div[2]/div[3]/span/div/div/div[3]/button[2]/div")
 search_field$sendKeysToElement(list("london school of economics"))
 Sys.sleep(1)
 search_field$sendKeysToElement(list(key = "enter"))
