@@ -20,7 +20,7 @@ library("tidyverse")
 Launching the driver and browser (if the port is already in use, choose a different number with four digits, e.g. `rsDriver(browser=c("firefox"), port = 1234L)`:
 
 ```{r}
-rD<- rsDriver(browser=c("firefox"))
+rD<- rsDriver(port=5555L,browser=c("firefox"))
 driver <- rD$client
 ```
 
@@ -40,6 +40,7 @@ selector_list <- list()
 
 # XPaths
 selector_list$search_box <- '//*[@id="coursesSearch"]' # single quotation marks because XPath contains quotation marks
+
 selector_list$go_button <- "/html/body/form/main/div/div/div/div[1]/div/div[1]/input[3]"
 selector_list$results_progress_box <- "/html/body/form/main/div/div/div/div[2]/div[2]/p"
 
@@ -55,6 +56,7 @@ results_progress <- driver$findElement(using = "xpath",
 results_progress_text <- results_progress$getElementText()[[1]]
 results_progress_text
 ```
+#Need to know which page you are on "last or first"
 
 Let us split this string into the following three pieces of information: 1. First result on this page (here: 1), 2. last result this page (here: 10), and the total amount of results (here: 607).
 
@@ -113,8 +115,11 @@ next_page <- function() {
   # the element. We run the following code twice as it certainly reaches
   # the end of the page then.
   for (i in 1:2) {
+#Bottom of page
     page_body <- driver$findElement("css", "body")
+#Goes to body
     page_body$sendKeysToElement(list(key = "end"))
+
     Sys.sleep(0.5)
   }
 
@@ -194,6 +199,7 @@ scrape_programmes <- function(term) {
       
       # Create the XPath character of the current programme
       current_programe_xpath <- sprintf("/html/body/form/main/div/div/div/div[2]/div[1]/article[%g]/a/header/h1", programme_int)
+    #This code is from the above file and takes out the 1 or 2 and replaces it with "g" or whatever page you want to specify that you are on
       
       # Find the element on the website and transform it to text directly
       current_programme_text <- driver$findElement(using = "xpath",

@@ -2,7 +2,9 @@
 title: "A first script using Selenium"
 author: "Friedrich Geiecke"
 date: "18/10/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 Note: For `RSelenium` to run, one usually needs Java DK. Should `RSelenium` not work properly after installing it with `install.packages("RSelenium")`, try to install Java DK. You can download the current version from here: https://www.oracle.com/java/technologies/downloads/. Afterwards restart RStudio.
@@ -45,8 +47,10 @@ agree_button$clickElement()
 
 Next, we will search for the LSE:
 
+#By inspecting the search bar it will automatically search for lse
+
 ```{r}
-search_field <- driver$findElement(using = "xpath", value = "tba")
+search_field <- driver$findElement(using = "xpath", value = "/html/body/div[1]/div[3]/form/div[1]/div[1]/div[1]/div/div[2]/input")
 search_field$sendKeysToElement(list("london school of economics"))
 Sys.sleep(1)
 search_field$sendKeysToElement(list(key = "enter"))
@@ -55,7 +59,7 @@ search_field$sendKeysToElement(list(key = "enter"))
 And navigate to its website by clicking on the first link of the search results:
 
 ```{r}
-first_link <- driver$findElement(using = "xpath", value = "tba")
+first_link <- driver$findElement(using = "xpath", value = "/html/body/div[7]/div/div[9]/div[1]/div/div[2]/div[2]/div/div/div[1]/div/div/div/div/div/div/div[1]/a/h3")
 first_link$clickElement()
 ```
 
