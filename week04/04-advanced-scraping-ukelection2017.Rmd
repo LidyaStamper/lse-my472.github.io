@@ -29,7 +29,7 @@ We first start Selenium server in Firefox:
 
 ```{r}
 # Start the Selenium server:
-rD <- rsDriver(browser=c("firefox"), port = 4491L)
+rD <- rsDriver(browser=c("firefox"), port = 4492L)
 driver <- rD[["client"]]
 
 # Navigate to the selected URL address
@@ -56,10 +56,11 @@ driver$switchToFrame(2)
 
 # We need to click on "Yes, I'm happy" button:
 # 1. Use a command to locate the button on the page
-accept_button <- driver$___________(using = "xpath", 
-                                    value = "/html/body/div/div[3]/div[3]/div/div/button[1]")
+accept_button <- driver$findElement(using = "xpath", 
+                                    value ="/html/body/div/div[2]/div[3]/div/div/button[1]")
+                                
 # 2. Click on the button:
-accept_button$_____________()
+accept_button$getElementText()
 
 # Switch back to default frame
 driver$switchToFrame(NULL)
@@ -69,7 +70,7 @@ Let's assume we want to see the results of the constituency here. We can feed po
 
 ```{r}
 # 1. identify the node for input
-search_field <- driver$findElement(using = 'class name', value = '______________')
+search_field <- driver$findElement(using = 'xpath', value = '/html/body/div[3]/article/div/div[2]/div/figure/figure/div[2]/div[2]/div[1]/div[2]/input')
 
 # 2. send the post code
 search_field$sendKeysToElement(list("WC2A 2AE"))
@@ -83,14 +84,14 @@ while(driver$findElement(using = 'class name',                                  
 }                         # the while() loop runs until you get some suggestions!
 
 # 4. click "Enter"
-search_field$sendKeysToElement(list(key = "______"))
+search_field$sendKeysToElement(list(key = "enter"))
 ```
 
 Now that we have the results table displayed, we will scrape the name of constituency and the table.
 
 ```{r}
 ## get the constituency name
-const_name <- driver$findElement(using = 'class name', value = '_____________')$getElementText() 
+const_name <- driver$findElement(using = 'xpath', value = '/html/body/div[3]/article/div/div[2]/div/figure/figure/div[2]/div[2]/div[2]/div/p/b[2]')$getElementText() 
 
 ## get the div with the result information
 res_div <- driver$findElement(using = 'class name', value = 'ge-result')
@@ -102,6 +103,8 @@ res_div <- driver$findElement(using = 'class name', value = 'ge-result')
 results_html <- read_html(res_div$getElementAttribute('innerHTML')[[1]])
 results_table <- html_table(results_html)[[1]]
 names(results_table)[c(1, 5)] <- c('tmp', 'tmp2')
+
+results_table
 ```
 
 The first column of the table was supposedly the party. But that information is not coming through, because it's just blank `<td>` tags. We still can extract the information by using the class information attached. 
@@ -118,6 +121,8 @@ print(party_class)
 # there are some extra texts here. Remove them using `stri_replace_*` function.
 party <- stri_replace_first_regex(party_class, ".+-", "")
 print(party)
+
+party
 ```
 
 Now, let's create a `data.frame`.
@@ -151,22 +156,22 @@ get_results_by_const <- function(const_name, sec = 4){
   
   # 2. Search -----------------------------------------------------------------
   # Locate the search field and type in constituency
-  search_field <- ____________________________________________________
+  search_field <- findElement(using = 'class')
   search_field$sendKeysToElement(list(const_name))  
   
   # Wait for the suggestions
   while(driver$findElement(using = 'class name', 
                            value = 'ge-lookup__suggestions')$getElementText() %>% 
         nchar() == 0) {
-    ___________(1)  # Hint: Sleep for 1 second
+    Sys.sleep(1)  # Hint: Sleep for 1 second
   }
 
   # Press ENTER to run the search
-  _______________________________________________
+ search_field$sendKeysToElement(list(key = "enter")) 
   
   # 3. Extract results --------------------------------------------------------
   # Get the div with the result information (i.e. table with results)
-  res_div <- driver$findElement(using = 'class name', value = 'ge-result')
+  res_div <- driver$findElement(using = 'xpath', value = 'ge-result')
   
   # Get the html of the table, then parse it using rvest's "html_table"
   results_html <- read_html(res_div$getElementAttribute('innerHTML')[[1]])
@@ -177,8 +182,8 @@ get_results_by_const <- function(const_name, sec = 4){
   
   # Extract political party information
   party_class <- results_html %>% 
-    html_nodes(xpath = "______________") %>%
-    html_attr("____________")
+    html_nodes(xpath = "//tr/td[1]/span") %>%
+    html_attr("class")
   party <- sub(".+-", "", party_class)
   
   # 4. Collect everything in one dataframe ------------------------------------
@@ -195,6 +200,7 @@ get_results_by_const <- function(const_name, sec = 4){
   return(results_table)
 }
 
+results_table
 ```
 
 Second, we need constituency names. We can get them from Wikipedia!
@@ -205,8 +211,9 @@ url_const <- "https://en.wikipedia.org/wiki/United_Kingdom_Parliament_constituen
 
 const <- read_html(url_const) %>%
   html_table(fill = TRUE) %>%
-  .[[3]] %>%
-  select(Constituency)
+  .[[4]] %>%
+  select(Constituency) %>%
+.[[1]]
 
 ```
 
